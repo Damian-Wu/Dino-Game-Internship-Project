@@ -17,6 +17,8 @@ is_playing = True  # Whether in game or in menu
 GROUND_Y = 300  # The Y-coordinate of the ground level
 JUMP_GRAVITY_START_SPEED = -20  # The speed at which the player jumps
 players_gravity_speed = 0  # The current speed at which the player falls
+start_time = 0
+current_score = 0
 
 # Load level assets
 SKY_SURF = pygame.image.load("graphics/level/sky.png").convert()
@@ -30,6 +32,29 @@ player_surf = pygame.image.load("graphics/player/player_walk_1.png").convert_alp
 player_rect = player_surf.get_rect(bottomleft=(25, GROUND_Y))
 egg_surf = pygame.image.load("graphics/egg/egg_1.png").convert_alpha()
 egg_rect = egg_surf.get_rect(bottomleft=(800, GROUND_Y))
+
+# ==================== 续写：新变量与定时器定义 ====================
+import random  # 确保在文件顶部或这里引入了 random
+
+start_time = 0          # 记录每局游戏开始的时间戳
+obstacle_rect_list = [] # 存放所有生成敌人的列表
+
+# 创建自定义定时器事件，每 1.4 秒触发一次
+OBSTACLE_TIMER = pygame.USEREVENT + 1
+pygame.time.set_timer(OBSTACLE_TIMER, 1400)
+# =============================================================
+
+# ==================== 续写：符合30行限制的独立函数 ====================
+def display_score():
+    """实时计算存活时间并渲染分数"""
+    current_time = pygame.time.get_ticks() - start_time
+    score = current_time // 1000
+    score_surf = game_font.render(f"Score: {score}", False, (64, 64, 64))
+    score_rect = score_surf.get_rect(center=(400, 50))
+    
+    pygame.draw.rect(screen, "#c0e8ec", score_rect.inflate(20, 10))
+    screen.blit(score_surf, score_rect)
+    return score
 
 
 while running:
