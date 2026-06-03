@@ -33,29 +33,14 @@ player_rect = player_surf.get_rect(bottomleft=(25, GROUND_Y))
 egg_surf = pygame.image.load("graphics/egg/egg_1.png").convert_alpha()
 egg_rect = egg_surf.get_rect(bottomleft=(800, GROUND_Y))
 
-# ==================== 续写：新变量与定时器定义 ====================
-import random  # 确保在文件顶部或这里引入了 random
-
-start_time = 0          # 记录每局游戏开始的时间戳
-obstacle_rect_list = [] # 存放所有生成敌人的列表
-
-# 创建自定义定时器事件，每 1.4 秒触发一次
-OBSTACLE_TIMER = pygame.USEREVENT + 1
-pygame.time.set_timer(OBSTACLE_TIMER, 1400)
-# =============================================================
-
-# ==================== 续写：符合30行限制的独立函数 ====================
 def display_score():
-    """实时计算存活时间并渲染分数"""
-    current_time = pygame.time.get_ticks() - start_time
-    score = current_time // 1000
-    score_surf = game_font.render(f"Score: {score}", False, (64, 64, 64))
+    current_time = int((pygame.time.get_ticks() - start_time) / 1000)
+    score_surf = game_font.render(f"Score: {current_time}", False, "Black")
     score_rect = score_surf.get_rect(center=(400, 50))
-    
-    pygame.draw.rect(screen, "#c0e8ec", score_rect.inflate(20, 10))
+    pygame.draw.rect(screen, "#c0e8ec", score_rect)
+    pygame.draw.rect(screen, "#c0e8ec", score_rect, 10)
     screen.blit(score_surf, score_rect)
-    return score
-
+    return current_time
 
 while running:
     # Poll for events
@@ -76,7 +61,10 @@ while running:
             # When player wants to play again by pressing SPACE
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 is_playing = True
+                start_time = pygame.time.get_ticks()
                 egg_rect.left = 800
+                player_rect.bottom = GROUND_Y
+                players_gravity_speed = 0
 
     if is_playing:
         screen.fill("purple")  # Wipe the screen
@@ -84,9 +72,7 @@ while running:
         # Blit the level assets
         screen.blit(SKY_SURF, (0, 0))
         screen.blit(GROUND_SURF, (0, GROUND_Y))
-        pygame.draw.rect(screen, "#c0e8ec", score_rect)
-        pygame.draw.rect(screen, "#c0e8ec", score_rect, 10)
-        screen.blit(score_surf, score_rect)
+        current_score = display_score()
 
         # Adjust egg's horizontal location then blit it
         egg_rect.x -= 5
@@ -108,6 +94,17 @@ while running:
     # When game is over, display game over message
     else:
         screen.fill("black")
+        game_over_surf = game_font.render("Game Over", False, "White")
+        game_over_rect = game_over_surf.get_rect(center=(400, 130))
+        screen.blit(game_over_surf, game_over_rect)
+
+        score_message_surf = game_font.render(f"Score: {current_score}", False, "White")
+        score_message_rect = score_message_surf.get_rect(center=(400, 210))
+        screen.blit(score_message_surf, score_message_rect)
+
+        restart_surf = game_font.render("Press SPACE", False, "White")
+        restart_rect = restart_surf.get_rect(center=(400, 285))
+        screen.blit(restart_surf, restart_rect)
 
     # flip the display to put your work on screen
     pygame.display.flip()
