@@ -28,9 +28,15 @@ score_surf = game_font.render("SCORE?", False, "Black")
 score_rect = score_surf.get_rect(center=(400, 50))
 
 # Load sprite assets
-
+player_walk_1 = pygame.image.load("graphics/player/player_walk_1.png").convert_alpha()
+player_walk_2 = pygame.image.load("graphics/player/player_walk_2.png").convert_alpha()
+player_walk = [player_walk_1, player_walk_2]
+player_index = 0
+player_surf = player_walk[player_index]
+player_rect = player_surf.get_rect(bottomleft=(25, GROUND_Y))
 egg_surf = pygame.image.load("graphics/egg/egg_1.png").convert_alpha()
 egg_rect = egg_surf.get_rect(bottomleft=(800, GROUND_Y))
+
 
 def display_score():
     current_time = int((pygame.time.get_ticks() - start_time) / 1000)
@@ -40,6 +46,16 @@ def display_score():
     pygame.draw.rect(screen, "#c0e8ec", score_rect, 10)
     screen.blit(score_surf, score_rect)
     return current_time
+
+def player_animation():
+    global player_surf, player_index
+    if player_rect.bottom < GROUND_Y:
+        player_surf = player_walk_1
+    else:
+        player_index += 0.1
+        if player_index >= len(player_walk):
+            player_index = 0
+        player_surf = player_walk[int(player_index)]
 
 while running:
     # Poll for events
@@ -84,8 +100,9 @@ while running:
         player_rect.y += players_gravity_speed
         if player_rect.bottom > GROUND_Y:
             player_rect.bottom = GROUND_Y
+        
+        player_animation()
         screen.blit(player_surf, player_rect)
-
         # When player collides with enemy, game ends
         if egg_rect.colliderect(player_rect):
             is_playing = False
